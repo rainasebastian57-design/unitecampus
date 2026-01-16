@@ -7,10 +7,10 @@ import Calendar from "../components/Calendar";
 
 function Home() {
   const [events, setEvents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(""); // date clicked in calendar
   const [editingEvent, setEditingEvent] = useState(null);
 
-  // Fetch all events from Firestore
+  // Fetch all events
   const fetchEvents = async () => {
     try {
       const snapshot = await getDocs(collection(db, "events"));
@@ -25,12 +25,11 @@ function Home() {
     fetchEvents();
   }, []);
 
-  // Filter events by selected date
+  // Filter events based on selectedDate
   const filteredEvents = selectedDate
     ? events.filter((e) => e.date === selectedDate)
     : events;
 
-  // Delete an event
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
@@ -42,13 +41,11 @@ function Home() {
     }
   };
 
-  // Edit an event
   const handleEdit = (event) => {
     setEditingEvent(event);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // After save/add
   const handleSave = () => {
     setEditingEvent(null);
     fetchEvents();
@@ -94,7 +91,7 @@ function Home() {
           <AddEvent editingEvent={editingEvent} onSave={handleSave} />
         </div>
 
-        {/* Event Cards Grid */}
+        {/* Event Cards */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
@@ -102,7 +99,7 @@ function Home() {
         }}>
           {filteredEvents.length === 0 && (
             <p style={{ gridColumn: "1 / -1", textAlign: "center", color: "#555" }}>
-              No events to display.
+              No events to display for this date.
             </p>
           )}
           {filteredEvents.map((event) => (
@@ -120,6 +117,7 @@ function Home() {
 }
 
 export default Home;
+
 
 
 
