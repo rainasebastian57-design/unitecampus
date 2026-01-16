@@ -2,107 +2,64 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 
-function AddEvent({ editingEvent, onSave }) {
+export default function AddEvent({ editingEvent, onSave }) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [category, setCategory] = useState("");
   const [posterUrl, setPosterUrl] = useState("");
+  const [registrationLink, setRegistrationLink] = useState("");
 
-  // Populate form if editing
+  // Load event data if editing
   useEffect(() => {
     if (editingEvent) {
       setTitle(editingEvent.title || "");
       setDate(editingEvent.date || "");
       setCategory(editingEvent.category || "");
       setPosterUrl(editingEvent.posterUrl || "");
+      setRegistrationLink(editingEvent.registrationLink || "");
     } else {
       setTitle("");
       setDate("");
       setCategory("");
       setPosterUrl("");
+      setRegistrationLink("");
     }
   }, [editingEvent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title || !date || !category) {
-      alert("Please fill all required fields");
-      return;
-    }
+    const eventData = { title, date, category, posterUrl, registrationLink };
 
     try {
       if (editingEvent) {
-        // Update event
         const eventRef = doc(db, "events", editingEvent.id);
-        await updateDoc(eventRef, { title, date, category, posterUrl });
+        await updateDoc(eventRef, eventData);
       } else {
-        // Add new event
-        await addDoc(collection(db, "events"), { title, date, category, posterUrl });
+        await addDoc(collection(db, "events"), eventData);
       }
 
       // Clear form
-      setTitle("");
-      setDate("");
-      setCategory("");
-      setPosterUrl("");
-
-      onSave(); // refresh Home.js
+      setTitle(""); setDate(""); setCategory(""); setPosterUrl(""); setRegistrationLink("");
+      onSave();
     } catch (err) {
       console.error("Error saving event:", err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-      <input
-        type="text"
-        placeholder="Event Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        style={{ flex: "1 1 150px" }}
-        required
-      />
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        style={{ flex: "1 1 120px" }}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        style={{ flex: "1 1 120px" }}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Poster Image URL"
-        value={posterUrl}
-        onChange={(e) => setPosterUrl(e.target.value)}
-        style={{ flex: "1 1 200px" }}
-      />
-      <button
-        type="submit"
-        style={{
-          backgroundColor: "#4CAF50",
-          color: "white",
-          padding: "6px 15px",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        {editingEvent ? "Update Event" : "Add Event"}
-      </button>
-    </form>
+    <div style={{ border: "1px solid #ddd", padding: "15px", borderRadius: "10px", backgroundColor: "#f9f9f9", marginBottom: "20px" }}>
+      <h3>{editingEvent ? "Edit Event" : "Add Event"}</h3>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <input type="text" placeholder="Event Title" value={title} required onChange={(e) => setTitle(e.target.value)} style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
+        <input type="date" placeholder="Event Date" value={date} required onChange={(e) => setDate(e.target.value)} style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
+        <input type="text" placeholder="Category (e.g., Cultural, Technical)" value={category} required onChange={(e) => setCategory(e.target.value)} style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
+        <input type="text" placeholder="Poster URL" value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
+        <input type="text" placeholder="Registration Link (Optional)" value={registrationLink} onChange={(e) => setRegistrationLink(e.target.value)} style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
+        <button type="submit" style={{ padding: "10px", backgroundColor: "#007BFF", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" }}>
+          {editingEvent ? "Update Event" : "Add Event"}
+        </button>
+      </form>
+    </div>
   );
 }
-
-export default AddEvent;
-
-
-
