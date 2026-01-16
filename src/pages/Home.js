@@ -7,10 +7,10 @@ import Calendar from "../components/Calendar";
 
 function Home() {
   const [events, setEvents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(""); // date clicked in calendar
+  const [selectedDate, setSelectedDate] = useState("");
   const [editingEvent, setEditingEvent] = useState(null);
 
-  // Fetch all events
+  // Fetch all events from Firestore
   const fetchEvents = async () => {
     try {
       const snapshot = await getDocs(collection(db, "events"));
@@ -30,6 +30,7 @@ function Home() {
     ? events.filter((e) => e.date === selectedDate)
     : events;
 
+  // Delete an event
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
@@ -41,11 +42,13 @@ function Home() {
     }
   };
 
+  // Edit an event
   const handleEdit = (event) => {
     setEditingEvent(event);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // After save/add
   const handleSave = () => {
     setEditingEvent(null);
     fetchEvents();
@@ -99,7 +102,7 @@ function Home() {
         }}>
           {filteredEvents.length === 0 && (
             <p style={{ gridColumn: "1 / -1", textAlign: "center", color: "#555" }}>
-              No events to display for this date.
+              {selectedDate ? "No events for this date." : "No events to display."}
             </p>
           )}
           {filteredEvents.map((event) => (
@@ -117,7 +120,3 @@ function Home() {
 }
 
 export default Home;
-
-
-
-
